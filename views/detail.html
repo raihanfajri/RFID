@@ -1,0 +1,74 @@
+<html>
+
+<head>
+  <title>Express</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+<body>
+  <div class="navbar">
+      <h3><%= title %></h3>
+  </div>
+  <div class="wrapper">
+        <div class="box box-1">
+            <ul class="sidemenu">
+              <li class="sidemenu-header">
+                  Menu
+              </li>
+              <li class="sidemenu-item">
+                  <a href="/">Beranda</a>
+              </li>
+              <li class="sidemenu-item">
+                  <a href="/tambah">Tambah</a>
+              </li>
+            </ul>
+        </div>
+          <div class="box box-2">
+            <table border="1">
+                <thead>
+                    <tr>
+                      <td>Tanggal</td>
+                      <td id="tanggal"><%= tanggal %></td>
+                    </tr>
+                </thead>
+                <tbody id="t-body">
+                  
+                </tbody>
+            </table>
+            <span id="empty"></span>
+          </div>
+        </div>
+  </div>
+</body>
+
+</html>
+<script>
+  /* populate table */
+  var tanggal = $('#tanggal').html()
+  $.ajax({
+    method: 'GET',
+    url: '/api/show-detail/' +  tanggal,
+    dataType: 'json'
+  }).done(function(result){
+      if(result.data != null){
+        var html = "<tr>" +
+                   "<td>Max</td>" + 
+                   "<td>" + result.data.max + "</td>" +
+                   "</tr>" +
+                   "<tr>" +
+                   "<td>Min</td>" + 
+                   "<td>" + result.data.min + "</td>" +
+                   "</tr>" +
+                   "<tr>" +
+                   "<td>Perbedaan</td>" + 
+                   "<td>" + (result.data.max - result.data.min) + "</td>" +
+                   "</tr>";
+        $('#t-body').append(html);
+      }else{
+        $('#empty').html(result.message);
+      }
+  }).fail(function(jqXHR, textStatus, errorThrown){
+      alert(textStatus, errorThrown);
+  })
+</script>

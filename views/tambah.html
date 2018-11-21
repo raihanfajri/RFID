@@ -1,0 +1,138 @@
+<html>
+
+<head>
+  <title><%= title %> - Berat</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+</head>
+
+<body>
+  <div class="navbar">
+      <h3><%= title %></h3>
+  </div>
+  <div class="wrapper">
+      <div class="box box-1">
+          <ul class="sidemenu">
+            <li class="sidemenu-header">
+                Menu
+            </li>
+            <li class="sidemenu-item">
+                <a href="/">Beranda </a>
+            </li>
+            <li class="sidemenu-item active">
+                Tambah / Edit
+            </li>
+          </ul>
+      </div>
+      <div class="box box-2">
+          <form id="form">
+            <div class="wrapper">
+                <div class="box-1">
+                    <label>Tanggal :</label>
+                    <input id="tanggal" type="date" >
+                </div>
+            </div>
+            <div class="wrapper">
+                <div class="box-1">
+                    <label>Berat Max :</label>
+                    <input id="max" type="number" value="0" min="0">
+                </div>
+            </div>
+            <div class="wrapper">
+                <div class="box-1">
+                    <label>Berat Min :</label>
+                    <input id="min" type="number" value="0" min="0" >
+                </div>
+            </div>
+            <div class="wrapper">
+                <span id="msg" class="msg"></span>
+            </div>
+            <div class="wrapper">
+                <div class="box-1">
+                    <button type="button" id="submitButton">Submit</button>
+                </div>
+            </div>
+          </form>
+      </div>
+  </div>
+</body>
+
+</html>
+<script>
+    var dataExist = false;
+    var formMethod = '';
+    var formUrl = '';
+    function inputCheck(){
+       var max = $('#max').val();
+       var min = $('#min').val();
+       if(max < min){
+          $('#msg').html('Berat max harus lebih besar atau sama dengan min!');
+          return false;
+       }else{
+          $('#msg').html('');
+          return true;
+       }
+    }
+    /* 
+        Checking record exist on tanggal input 
+        if exist : dataExist true
+                   change max and min value to current value
+                   form method PUT
+        if not : dataExist false
+                 form method POST
+     */
+    $('#tanggal').change(function(){
+        var tanggal = new Date($(this).val())
+        $.ajax({
+            method: 'GET',
+            url : '/api/show-detail/'+ tanggal,
+            dataType: 'json'
+        }).done(function(result){
+            console.log(result)
+            if(result.data != null){
+                dataExist = true;
+                $('#max').val(result.data.max);
+                $('#min').val(result.data.min);
+            }else{
+                dataExist = false;
+                $('#max').val(0);
+                $('#min').val(0);
+            }
+            if(dataExist){
+                formMethod = 'PUT';
+                formUrl = '/api/update';
+            }else{
+                formMethod = 'POST';
+                formUrl = '/api/create';
+            }
+        }).fail(function(jqXHR, textStatus, errorThrown){
+            alert(textStatus, errorThrown);
+        })
+    });
+    /* 
+        Submitting form depends on dataExist
+     */
+    $('#submitButton').click(function(){
+        if(inputCheck() && $('#tanggal').val() != ''){
+            let self = $(this)
+            var data = {
+                tanggal : new Date($('#tanggal').val()),
+                max : $('#max').val(),
+                min : $('#min').val()
+            }
+            self.html('<i class="fas fa-spinner fa-spin"></i>')
+            $.ajax({
+                method : formMethod,
+                url : formUrl,
+                data : data,
+                dataType: 'json'
+            }).done(function(result){
+                alert(result.message);
+                self.html('Submit')
+            }).fail(function(jqXHR, textStatus, errorThrown){
+                alert(textStatus, errorThrown);
+            })
+        }
+    });
+</script>
