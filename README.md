@@ -1,5 +1,5 @@
-# SIRCLO-Berat
-SIRCLO technical test - Berat
+# RFID
+
 
 # How to run
 Make sure you have installed [Node JS](https://nodejs.org/en/) environment in your local.  
