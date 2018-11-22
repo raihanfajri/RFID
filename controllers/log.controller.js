@@ -4,7 +4,8 @@ var express = require('express'),
     user = require('./../models/user.model'),
     log = require('./../models/log.model'),
     async = require('async'),
-    crypto = require('crypto')
+    crypto = require('crypto'),
+    constant = require('../utils/constant')
 
 var user_model = new user;
 var log_model = new log;
@@ -146,30 +147,31 @@ class LogController{
         })
     }
 
-    /* Update a record where tanggal = req.tanggal */
-    update(req, res){
-        berat.update({
-            max : req.body.max,
-            min : req.body.min
-        },{
-            where : { tanggal : req.body.tanggal }
-        }).then(result => {
-            let message = "Data berat berhasil diupdate!"
-            res.status(201).json({status: true, message: message, data: result});
-        }).catch(error => {
-            let message = "Data berat gagal diupdate!"
-            res.status(500).json({status: false, message: message, data: error});
-        });
-    }
-
     /* Show all user data descending ordered by tanggal */
     showAll(res){
-        var rfid = 'asd'
-        var message = 'Successfuly get all active users'
-        user_model.getListActiveUsers(function(result){
+        var message = 'Successfuly get all active logs'
+        log_model.getAllActiveLogs(function(result){
             if(!result.err){
                 if(result.data.length != 0){
-                    res.status(200).json({status: true, message: message, data: result.data});
+                    var dataPromise = new Promise(function(resolve, reject){
+                        var data = []
+                        for(var i in result.data){
+                            var check_in = constant.convertToGMT7(result.data[i].checkin_time)
+                            var check_out = result.data[i].checkout_time != null ? constant.convertToGMT7(result.data[i].checkout_time) : '-'
+                            data.push({
+                                id : result.data[i].id,
+                                tujuan : result.data[i].tujuan != null ? result.data[i].tujuan : '-',
+                                status : result.data[i].checkout_time == null ? 1 : 0,
+                                checkin_time : check_in,
+                                checkout_time : check_out,
+                                user : result.data[i].user
+                            })
+                        }
+                        resolve(data)
+                    })
+                    dataPromise.then(function(data){
+                        res.status(200).json({status: true, message: message, data: data});
+                    })
                 }
                 else{
                     message = 'Active users not found';

@@ -22,3 +22,12 @@ exports.roleAdminStringToNumber = function(adminString){
             return null
     }
 }
+
+exports.convertToGMT7 = function(time){
+    var date = new Date(time)
+    var utc = date.getTime() + (0 * 60000)
+    var gmt7 = new Date(utc + (3600000*7))
+    gmt7 = gmt7.getDate() + '-' + (gmt7.getMonth()+1) + '-' + gmt7.getFullYear() + ' ' + 
+            gmt7.getHours() + ':' + gmt7.getMinutes()
+    return gmt7;
+}

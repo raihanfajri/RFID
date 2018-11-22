@@ -22,7 +22,7 @@
               '<tr>'+
                 '<td>'+ pengguna[i].name +'</td>'+
                 '<td>'+ pengguna[i].role.name +'</td>'+
-                '<td><span class="label label-'+ (pengguna[i].status == 1 ? 'success' : 'danger') +'">'+ (pengguna[i].status == 1 ? 'aktif' : 'tidak aktif') +'</span></td>'+
+                '<td><span class="label label-'+ (pengguna[i].status == 1 ? 'success' : 'danger') +'">'+ (pengguna[i].status == 1 ? 'Aktif' : 'Tidak Aktif') +'</span></td>'+
                 '<td>'+ pengguna[i].date +'</td>'+ (pengguna[i].status != 1 ? '<td></td>' :
                 '<td><a style="cursor:pointer" onClick="updatePengguna('+ i +')"><i class="fa fa-edit"></a></i>&nbsp;&nbsp;&nbsp;<a style="cursor:pointer" onClick="deletePengguna('+ i +')"><i class="fa fa-trash-o"></i></a></td>')+
               '</tr>'
@@ -42,7 +42,7 @@
             '<tr>'+
             '<td>'+ pengguna[i].name +'</td>'+
             '<td>'+ pengguna[i].role.name +'</td>'+
-            '<td><span class="label label-'+ (pengguna[i].status == 1 ? 'success' : 'danger') +'">'+ (pengguna[i].status == 1 ? 'aktif' : 'tidak aktif') +'</span></td>'+
+            '<td><span class="label label-'+ (pengguna[i].status == 1 ? 'success' : 'danger') +'">'+ (pengguna[i].status == 1 ? 'Aktif' : 'Tidak Aktif') +'</span></td>'+
             '<td>'+ pengguna[i].date +'</td>'+(pengguna[i].status != 1 ? '<td></td>' :
                 '<td><a style="cursor:pointer" onClick="updatePengguna('+ i +')"><i class="fa fa-edit"></a></i>&nbsp;&nbsp;&nbsp;<a style="cursor:pointer" onClick="deletePengguna('+ i +')"><i class="fa fa-trash-o"></i></a></td>')+
             '</tr>'
@@ -106,23 +106,26 @@
     })
   }
   function updatePengguna(index){
+    var optionString = ''
+    for(var i in kriteria){
+      optionString += '<option value="'+ kriteria[i].id +'">'+ kriteria[i].name +'</option>'
+    }
     $("#modal-default").modal()
     $("#modal-title").html('Edit Pengguna')
     $("#modal-body").html(
       '<div class="form-group">'+
-        '<label>Nama Pengguna</label>'+
+        '<label>Nama Pengguna Kartu</label>'+
         '<input id="nama-pengguna"  type="text" class="form-control" placeholder="Masukan nama pengguna">'+
       '</div>'+
       '<div class="form-group">'+
-        '<label>Status</label>'+
-        '<select id="status-pengguna" class="form-control">'+
-          '<option value="0">Permanent</option>'+
-          '<option value="1">Temporary</option>'+
+        '<label>Kriteria Pengguna Kartu</label>'+
+        '<select id="kriteria-pengguna" class="form-control">'+
+          optionString+
         '</select>'+
       '</div>'
     )
     $('#nama-pengguna').val(pengguna[index].name)
-    $('#status-pengguna').val(pengguna[index].status == 'Permanent'? 0 : 1)
+    $('#kriteria-pengguna').val(pengguna[index].role.id)
     $('#modal-footer').html(
       '<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>'+
       '<button type="button" onClick="submitPengguna('+ pengguna[index].id +', 2)" class="btn btn-primary">Save changes</button>'

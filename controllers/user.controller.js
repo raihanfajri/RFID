@@ -29,18 +29,29 @@ class UserController{
 
     /* Update a record where tanggal = req.tanggal */
     update(req, res){
-        berat.update({
-            max : req.body.max,
-            min : req.body.min
-        },{
-            where : { tanggal : req.body.tanggal }
-        }).then(result => {
-            let message = "Data berat berhasil diupdate!"
-            res.status(201).json({status: true, message: message, data: result});
-        }).catch(error => {
-            let message = "Data berat gagal diupdate!"
-            res.status(500).json({status: false, message: message, data: error});
-        });
+        user_model.updateUser(req.body, function(result){
+            if(!result.err){
+                let message = "Data user berhasil diganti!"
+                res.status(201).json({err: false, message: message, data: result.data});
+            }
+            else{
+                let message = "Data usergagal diganti!"
+                res.status(500).json({err: true, message: message, data: error});    
+            }
+        })
+    }
+
+    delete(req, res){
+        user_model.deleteUser(req.body.id, function(result){
+            if(!result.err){
+                let message = "Data user berhasil dihapus!"
+                res.status(201).json({err: false, message: message, data: result.data});
+            }
+            else{
+                let message = "Data usergagal dihapus!"
+                res.status(500).json({err: true, message: message, data: error});    
+            }
+        })
     }
 
     /* Show all user data descending ordered by tanggal */

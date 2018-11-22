@@ -89,6 +89,23 @@ class UserModel{
       })
     }
 
+    updateUser(data, callback){
+      user.update({
+          name: data.name,
+          role_id: data.role_id,
+          status: 1,
+          updated_date: new Date()
+      },{
+        where:{
+            id: data.id
+        }
+    }).then(result => {
+          callback({err: false, data: result})
+      }).catch(err => {
+          callback({err: true, data: err})
+      })
+    }
+
     deleteUser(id, callback){
       user.update({
           status: 4,

@@ -51,9 +51,17 @@ router.post('/user/create', function(req, res, next) {
 });
 
 /* API for update a user record depends on tanggal */
-router.put('/update', function(req, res, next) {
+router.post('/user/update', function(req, res, next) {
   User.update(req,res);
 });
+
+router.post('/user/delete', function(req, res, next) {
+  User.delete(req,res);
+});
+
+router.get('/logs/all', function(req, res, next){
+  Log.showAll(res);
+})
 
 /* API for get all user records */
 router.get('/user/all', function(req, res, next) {

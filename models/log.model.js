@@ -1,9 +1,11 @@
 'use strict';
 var sequelize = require('../connection'),
     log = sequelize.import('../repository/log.table'),
-    user = sequelize.import('../repository/user.table')
+    user = sequelize.import('../repository/user.table'),
+    role = sequelize.import('../repository/role.table')
 
 log.belongsTo(user, {foreignKey : 'user_id'})
+user.belongsTo(role, { foreignKey: 'role_id' })
 
 class LogClass{
   constructor(){
@@ -14,8 +16,10 @@ class LogClass{
     log.findAll({
       where: {status : 1},
       include: [{
-        model : user
-      }]
+        model : user,
+        include : role
+      }],
+      order : [['updated_date','DESC']]
     }).then(result => {
         callback({err: false, data: result})
     }).catch(err => {
