@@ -2,7 +2,6 @@
   var pengguna = {}
   loadPengguna()
   function loadPengguna(){
-    $('#loading-pengguna').removeClass('hidden')
     $.ajax({
       method: 'GET',
       url: '/api/user/all',
@@ -37,7 +36,7 @@
   $('#page-pengguna').change(function(){
     var page = $('#page-pengguna').val()
     $("#tabel-pengguna").html('')
-    for(var i = (page-1)*limit; i < (page*limit); i++){
+    for(var i = (page-1)*limit; i < ((page*limit) > pengguna.length ? pengguna.length : (page*limit)); i++){
       $("#tabel-pengguna").append(
             '<tr>'+
             '<td>'+ pengguna[i].name +'</td>'+

@@ -2,7 +2,6 @@
   var kriteria = {}
   loadKriteria()
   function loadKriteria(){
-    $('#loading-kriteria').removeClass('hidden')
     $.ajax({
       method: 'GET',
       url: '/api/role/list',
@@ -36,7 +35,7 @@
   $('#page-kriteria').change(function(){
     var page = $('#page-kriteria').val()
     $("#tabel-kriteria").html('')
-    for(var i = (page-1)*limit; i < (page*limit); i++){
+    for(var i = (page-1)*limit; i < ((page*limit) > kriteria.length ? kriteria.length : (page*limit)); i++){
       $("#tabel-kriteria").append(
         '<tr>'+
           '<td>'+ kriteria[i].name +'</td>'+

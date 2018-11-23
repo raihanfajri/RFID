@@ -63,6 +63,10 @@ router.get('/logs/all', function(req, res, next){
   Log.showAll(res);
 })
 
+router.post('/logs/update', function(req, res, next){
+  Log.updateLog(req, res);
+})
+
 /* API for get all user records */
 router.get('/user/all', function(req, res, next) {
   User.showAll(res);

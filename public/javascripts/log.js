@@ -2,7 +2,6 @@
   var log = {}
   loadLog()
   function loadLog(){
-    $('#loading-log').removeClass('hidden')
     $.ajax({
       method: 'GET',
       url: '/api/logs/all',
@@ -55,17 +54,14 @@
   })
   function submitLog(id, state){
     $("#modal-default").modal('hide');
-    $('#tambah-log').addClass('disabled');
-    $('#tambah-log').html('<i class="fa fa-refresh fa-spin" style="margin-left:35px;margin-right:35px"></i>');
     var data = {
       id: id,
-      name: $('#nama-log').val(),
-      delete_after_checkout: $('#status-log').val()
+      tujuan: $('#tujuan-log').val(),
     }
     var url = ''
     switch(state){
       case 2 :
-        url = '/api/log/update';
+        url = '/api/logs/update';
         break;
     }
     $.ajax({
@@ -74,12 +70,22 @@
       type: 'json',
       data: data
     }).then(function(result){
-      $('#tambah-log').removeClass('disabled');
-      $('#tambah-log').html('Tambah Log');
       loadLog()
     })
   }
-  function updateLog(index){
+  function updateLog(index, msg = null){
+    var data = {}
+    if(index == -1){
+      data['id'] = msg.log_data.id
+      data['tujuan'] = msg.tujuan
+      data['nama'] = msg.user_data.name
+      data['kriteria'] = msg.user_data.role.name
+    }else{
+      data['id'] = log[index].id
+      data['tujuan'] = log[index].tujuan
+      data['nama'] = log[index].user.name
+      data['kriteria'] = log[index].user.role.name
+    }
     $("#modal-default").modal()
     $("#modal-title").html('Edit Log')
     $("#modal-body").html(
@@ -89,18 +95,29 @@
       '</div>'+
       '<div class="form-group">'+
         '<label>Kriteria</label>'+
-        '<input id="Kriteria-log"  type="text" class="form-control" disabled>'+
+        '<input id="kriteria-log"  type="text" class="form-control" disabled>'+
       '</div>'+
       '<div class="form-group">'+
         '<label>Tujuan</label>'+
         '<input id="tujuan-log"  type="text" class="form-control" placeholder="Masukan Tujuan">'+
       '</div>'
     )
-    $('#tujuan-log').val((log[index].tujuan == '-'? null : log[index].tujuan))
-    $('#nama-log').val(log[index].user.name)
-    $('#kriteria-log').val(log[index].user.role.name)
+    $('#tujuan-log').val((data.tujuan == '-'? null : data.tujuan))
+    $('#nama-log').val(data.nama)
+    $('#kriteria-log').val(data.kriteria)
     $('#modal-footer').html(
       '<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>'+
-      '<button type="button" onClick="submitLog('+ log[index].id +', 2)" class="btn btn-primary">Save changes</button>'
+      '<button type="button" onClick="submitLog('+ data.id +', 2)" class="btn btn-primary">Save changes</button>'
+    );
+  }
+  function checkoutLog(msg){
+    $("#modal-default").modal()
+    $("#modal-title").html('Checked Out')
+    $("#modal-body").html(
+      msg.user_data.role.name + '&nbsp;<strong>'+ msg.user_data.name + '</strong>&nbsp;telah keluar pada tanggal ' + msg.check_out.split(' ')[0] +
+      ' jam ' + msg.check_out.split(' ')[1]
+    )
+    $('#modal-footer').html(
+      '<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>'
     );
   }

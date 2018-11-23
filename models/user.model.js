@@ -66,7 +66,8 @@ class UserModel{
       user.findAll({
           include: [{
             model: role
-          }]
+          }],
+          order: [['created_date','DESC']]
       }).then(result => {
           callback({err: false, data: result})
       }).catch( err => {

@@ -44,10 +44,12 @@ class LogController{
                                             })
                                         }
                                         /** Emit check out */
+                                        var check_out = constant.convertToGMT7(new Date(), 7)
                                         var data = {
                                             status : 2,
                                             user_data : user_data,
                                             log_data : result3.data,
+                                            check_out: check_out,
                                             message: 'Successfuly Checkout User'
                                         }
                                         io.emit('check', data)
@@ -64,6 +66,7 @@ class LogController{
                                             status : 1,
                                             user_data : user_data,
                                             log_data : result3.data,
+                                            tujuan : result3.data.tujuan != null ? result3.data.tujuan : '-',
                                             message: 'Successfuly Checkin user'
                                         }
                                         io.emit('check', data)
@@ -133,15 +136,14 @@ class LogController{
         });
     }
 
-    /* Create new record */
-    create(req, res){
-        user.createUser(req.body, function(result){
+    updateLog(req, res){
+        log_model.updateTujuanLog(req.body, function(result){
             if(!result.err){
-                let message = "Data user baru berhasil ditambahkan!"
+                let message = "Data log berhasil diganti!"
                 res.status(201).json({err: false, message: message, data: result.data});
             }
             else{
-                let message = "Data user baru gagal ditambahkan!"
+                let message = "Data log gagal diganti!"
                 res.status(500).json({err: true, message: message, data: error});    
             }
         })
@@ -156,8 +158,8 @@ class LogController{
                     var dataPromise = new Promise(function(resolve, reject){
                         var data = []
                         for(var i in result.data){
-                            var check_in = constant.convertToGMT7(result.data[i].checkin_time)
-                            var check_out = result.data[i].checkout_time != null ? constant.convertToGMT7(result.data[i].checkout_time) : '-'
+                            var check_in = constant.convertToGMT7(result.data[i].checkin_time, 0)
+                            var check_out = result.data[i].checkout_time != null ? constant.convertToGMT7(result.data[i].checkout_time, 0) : '-'
                             data.push({
                                 id : result.data[i].id,
                                 tujuan : result.data[i].tujuan != null ? result.data[i].tujuan : '-',
