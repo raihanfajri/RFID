@@ -25,5 +25,6 @@ app.use('/api', apiRouter);
 app.use('/admin-lte', express.static(__dirname + '/node_modules/admin-lte/'));
 app.use('/socket', express.static(__dirname + '/node_modules/socket.io-client/dist/'));
 app.use('/script', express.static(__dirname + '/public/javascripts/'));
+app.use('/image', express.static(__dirname + '/public/images/'));
 
 module.exports = app;

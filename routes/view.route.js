@@ -2,18 +2,18 @@ var express = require('express');
 var router = express.Router();
 
 /* Router to index page */
-router.get('/', function(req, res, next) {
+router.get('/dashboard', function(req, res, next) {
   res.render('index', { title: 'Berat' });
 });
 
-/* Router to create page */
-router.get('/tambah', function(req, res, next) {
-  res.render('Tambah', { title: 'Tambah/Edit Berat' });
+/* Router to index page */
+router.get('/login', function(req, res, next) {
+  res.render('login', { title: 'Berat' });
 });
 
-/* Router to detail page */
-router.get('/show-detail/:tanggal', function(req, res, next) {
-  res.render('detail', { title: 'Detail Berat', tanggal : req.params.tanggal});
+/* Router to index page */
+router.get('/', function(req, res, next) {
+  res.render('none', { title: 'Berat' });
 });
 
 module.exports = router;

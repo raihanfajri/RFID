@@ -21,6 +21,32 @@ router.post('/admin/login', function(req, res, next) {
   Admin.login(req,res);
 });
 
+/* API for login admin */
+router.post('/admin/update', function(req, res, next) {
+  Admin.updateAdminData(req,res);
+});
+
+/* API for login admin */
+router.post('/admin/delete', function(req, res, next) {
+  Admin.deleteAdmin(req,res);
+});
+
+/* API for login admin */
+router.post('/admin/activate', function(req, res, next) {
+  Admin.aktifkanAdmin(req,res);
+});
+
+
+/* API for login admin */
+router.get('/admin/verify', function(req, res, next) {
+  Admin.verifyToken(req,res);
+});
+
+/* API for login admin */
+router.get('/admin/all', function(req, res, next) {
+  Admin.getAllAdmin(res);
+});
+
 /* API for create new role record */
 router.get('/role/list', function(req, res, next) {
   Role.getAllRoles(req,res);

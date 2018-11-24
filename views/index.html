@@ -5,6 +5,11 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>RFID | Dashboard</title>
+  <script>
+    if(window.localStorage.getItem('token') == null){
+      window.location.assign('/login')
+    }
+  </script>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <!-- Bootstrap 3.3.7 -->
@@ -55,9 +60,14 @@
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
           <!-- User Account: style can be found in dropdown.less -->
-          <li class="dropdown user user-menu">
+          <li class="dropdown user user-menu" id="button-nama-admin">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <span class="hidden-xs">Alexander Pierce</span>
+              <span class="hidden-xs" id="nama-admin"></span>
+            </a>
+          </li>
+          <li class="dropdown user user-menu">
+            <a href="#" id="logout" class="dropdown-toggle" data-toggle="dropdown">
+              <span class="hidden-xs"><strong>Logout</strong> </span>
             </a>
           </li>
         </ul>
@@ -278,7 +288,58 @@
         <!-- /.col -->
       </div>
       <!-- /.row -->
-      
+      <div class="row"> 
+        <div class="col-md-6 hidden" id="daftar-admin">
+          <!-- TABLE: LOGS -->
+          <div class="box box-info">
+            <div class="box-header with-border">
+              <h3 class="box-title">Daftar Admin</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+              </div>
+            </div>
+            <div class="overlay" id="loading-admin">
+                <i class="fa fa-refresh fa-spin"></i>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+              <div class="table-responsive">
+                <table class="table no-margin">
+                  <thead>
+                  <tr>
+                    <th>Username</th>
+                    <th>Status</th>
+                    <th>Tanggal Daftar</th>
+                    <th>Aksi</th>
+                  </tr>
+                  </thead>
+                  <tbody id="tabel-admin">
+                  
+                  </tbody>
+                </table>
+              </div>
+              <!-- /.table-responsive -->
+            </div>
+            <!-- /.box-body -->
+            <span id="admin-not-found" class="hidden" style="margin-left:32%">Daftar admin kosong</span>
+            <div class="box-footer clearfix">
+              <a id="tambah-admin" onClick="tambahAdmin()" class="btn btn-sm btn-primary pull-left">Tambah Admin</a>
+              <div class="col-md-4 col-xs-6 pull-right">
+                <div class="input-group">
+                  <span class="input-group-addon">Page</span>
+                  <select id="page-admin" class="form-control" >
+                  </select>
+                </div>
+              </div>
+            </div>
+            <!-- /.box-footer -->
+          </div>
+          <!-- /.box -->
+        </div>
+      </div>
     </section>
     <!-- /.content -->
   </div>
@@ -339,6 +400,8 @@
 </script>
 <script src="/script/role.js"></script>
 <script src="/script/user.js"></script>
+<script src="/script/admin.js"></script>
 <script src="/script/log.js"></script>
+<script src="/script/login.js"></script>
 </body>
 </html>

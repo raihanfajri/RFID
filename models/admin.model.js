@@ -20,6 +20,18 @@ class AdminClass{
     })
   }
 
+  getListAllAdmin(callback){
+    admin.findAll({
+        where: {
+            role_admin : 2
+        }
+    }).then(result => {
+        callback({err: false, data: result})
+    }).catch( err => {
+        callback({err: true, data: err})
+    })
+  }
+
   getAllActiveAdminByUsername(username, callback){
     admin.findAll({
         where:{
@@ -77,14 +89,9 @@ class AdminClass{
     })
   }
 
-  updateAdmin(data, callback){
-    admin.update({
-        username: data.username,
-        password: data.password,
-        status: 1,
-        updated_date: new Date()
-    },{
-      where: {id : data.id}
+  updateAdmin(data, id, callback){
+    admin.update(data,{
+      where: {id : id}
     }).then(result => {
         callback({err: false, data: result})
     }).catch(err => {
