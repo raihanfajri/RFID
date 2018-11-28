@@ -11,6 +11,7 @@
       if(!res.err){
         log = res.data
         if(log.length > 0){
+          $('#log-not-found').addClass('hidden')
           $('#page-log').html('')
           for(var i = 1; i <= Math.ceil(log.length/limit); i++){
             $('#page-log').append('<option value="'+ i +'">'+ i +'</option>')
@@ -116,6 +117,17 @@
     $("#modal-body").html(
       msg.user_data.role.name + '&nbsp;<strong>'+ msg.user_data.name + '</strong>&nbsp;telah keluar pada tanggal ' + msg.check_out.split(' ')[0] +
       ' jam ' + msg.check_out.split(' ')[1]
+    )
+    $('#modal-footer').html(
+      '<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>'
+    );
+  }
+
+  function failedCheck(msg){
+    $("#modal-default").modal()
+    $("#modal-title").html('Gagal untuk masuk/keluar')
+    $("#modal-body").html(
+      msg.message
     )
     $('#modal-footer').html(
       '<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>'

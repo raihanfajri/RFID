@@ -11,6 +11,7 @@
       if(!res.err){
         kriteria = res.data
         if(res.data.length > 0){
+          $('#kriteria-not-found').addClass('hidden')
           $('#page-kriteria').html('')
           for(var i = 1; i <= Math.ceil(res.data.length/limit); i++){
             $('#page-kriteria').append('<option value="'+ i +'">'+ i +'</option>')
@@ -26,6 +27,11 @@
               '</tr>'
             )
           }
+          var optionString = '<option value="-1">Semua</option>'
+          for(var i in kriteria){
+            optionString += '<option value="'+ kriteria[i].id +'">'+ kriteria[i].name +'</option>'
+          }
+          $('#kriteria-pengguna-filter').html(optionString)
         }else{
           $('#kriteria-not-found').removeClass('hidden')
         }

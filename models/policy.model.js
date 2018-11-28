@@ -4,6 +4,7 @@ var sequelize = require('../connection'),
     role = sequelize.import('../repository/role.table')
 
 policy.belongsTo(role, {foreignKey: 'role_id'})
+role.hasMany(policy, {foreignKey: 'role_id'})
 
 class PolicyClass{
   constructor(){
@@ -11,10 +12,12 @@ class PolicyClass{
   }
 
   getAllActivePolicies(callback){
-    policy.findAll({
+    role.findAll({
       where: {status : 1},
       include: [{
-        model : role
+        model : policy,
+        where: {status : 1},
+        order: [['day','ASC']]
       }]
     }).then(result => {
         callback({err: false, data: result})
@@ -36,7 +39,21 @@ class PolicyClass{
     })
   }
 
-  createPolicy(data, callback){
+  checkPolicyByDay(data, callback){
+    policy.findOne({
+        where: {
+            status : 1,
+            day : data.day,
+            role_id : data.role_id
+        }
+    }).then(result => {
+        callback({err: false, data: result})
+    }).catch(err => {
+        callback({err: true, data: err})
+    })
+  }
+
+  create(data, callback){
     policy.create({
         name: data.name,
         role_id: data.role_id,
@@ -51,11 +68,21 @@ class PolicyClass{
     })
   }
 
-  updatePolicy(data, callback){
+  bulkCreate(data, callback){
+      policy.bulkCreate(data)
+        .then(() => {
+            callback({err: false, data: []})
+        }).catch(err => {
+            callback({err: true, data: err})
+        })
+  }
+
+  update(data, callback){
     policy.update({
-        name: data.name,
         role_id: data.role_id,
         day: data.day,
+        checkin: data.checkin,
+        checkout: data.checkout,
         status: 1,
         updated_date: new Date()
     },{
@@ -67,7 +94,7 @@ class PolicyClass{
     })
   }
 
-  deletePolicy(id, callback){
+  delete(id, callback){
     policy.update({
         status: 4,
         updated_date: new Date()

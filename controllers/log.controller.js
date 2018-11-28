@@ -5,10 +5,12 @@ var express = require('express'),
     log = require('./../models/log.model'),
     async = require('async'),
     crypto = require('crypto'),
-    constant = require('../utils/constant')
+    constant = require('../utils/constant'),
+    policy = require('./../models/policy.model')
 
 var user_model = new user;
 var log_model = new log;
+var policy_model = new policy;
 
 
 class LogController{
@@ -29,57 +31,82 @@ class LogController{
                         name: result1.data.name,
                         role: result1.data.role
                     }
-                    /** check check_in status user in log */
-                    log_model.getCheckedinLogByUserId(user_data.user_id, function(result2){
-                        if(!result2.err){
-                            /** if exist update checkout_time log, if not create new log */
-                            if(result2.data != null){
-                                var log_id = result2.data.id
-                                log_model.updateCheckoutLog(log_id, function(result3){
-                                    if(!result3.err){
-                                        /** if user is disposable, user is deleted */
-                                        if(user_data.role.delete_after_checkout == 1){
-                                            user_model.deleteUser(user_data.user_id, function(result4){
-
-                                            })
-                                        }
-                                        /** Emit check out */
-                                        var check_out = constant.convertToGMT7(new Date(), 7)
+                    var policy_data = {
+                        day : new Date().getDay(),
+                        role_id : user_data.role.id
+                    }
+                    policy_model.checkPolicyByDay(policy_data, function(policy_result){
+                        policy_result.data = policy_result.data != null ? policy_result.data : {checkin : 1, checkout: 1}
+                        /** check check_in status user in log */
+                        log_model.getCheckedinLogByUserId(user_data.user_id, function(result2){
+                            if(!result2.err){
+                                /** if exist update checkout_time log, if not create new log */
+                                if(result2.data != null){
+                                    if(policy_result.data.checkout == 1){
+                                        var log_id = result2.data.id
+                                        log_model.updateCheckoutLog(log_id, function(result3){
+                                            if(!result3.err){
+                                                /** if user is disposable, user is deleted */
+                                                if(user_data.role.delete_after_checkout == 1){
+                                                    user_model.deleteUser(user_data.user_id, function(result4){})
+                                                }
+                                                /** Emit check out */
+                                                var check_out = constant.convertToGMT7(new Date(), 7)
+                                                var data = {
+                                                    status : 2,
+                                                    user_data : user_data,
+                                                    log_data : result3.data,
+                                                    check_out: check_out,
+                                                    message: 'Successfuly Checkout User'
+                                                }
+                                                io.emit('check', data)
+                                                res.status(200).json({err: false, message: 'Successfuly Checkout User', data: data})
+                                            }else{
+                                                res.status(500).json({err: true, message: result3.data})
+                                            }
+                                        })
+                                    }else{
                                         var data = {
-                                            status : 2,
-                                            user_data : user_data,
-                                            log_data : result3.data,
-                                            check_out: check_out,
-                                            message: 'Successfuly Checkout User'
+                                            status : 5,
+                                            user_data: user_data,
+                                            message: user_data.role.name +' dilarang keluar pada hari ini'
                                         }
                                         io.emit('check', data)
-                                        res.status(200).json({err: false, message: 'Successfuly Checkout User', data: data})
-                                    }else{
-                                        res.status(500).json({err: true, message: result3.data})
+                                        res.status(200).json({err: false, message: 'Failed to checkout user', data : data})
                                     }
-                                })
+                                }else{
+                                    if(policy_result.data.checkin == 1){
+                                        log_model.createLog(user_data, function(result3){
+                                            if(!result3.err){
+                                                /** Emit check in */
+                                                var data = {
+                                                    status : 1,
+                                                    user_data : user_data,
+                                                    log_data : result3.data,
+                                                    tujuan : result3.data.tujuan != null ? result3.data.tujuan : '-',
+                                                    message: 'Successfuly Checkin user'
+                                                }
+                                                io.emit('check', data)
+                                                res.status(200).json({err: false, message: 'Successfuly Checkin user', data: data})
+                                            }else{
+                                                res.status(500).json({err: true, message: result3.data})
+                                            }
+                                        });
+                                    }else{
+                                        var data = {
+                                            status : 6,
+                                            user_data: user_data,
+                                            message: user_data.role.name +' dilarang masuk pada hari ini'
+                                        }
+                                        io.emit('check', data)
+                                        res.status(200).json({err: false, message: 'Failed to checkin user', data: data})
+                                    }
+                                }
                             }else{
-                                log_model.createLog(user_data, function(result3){
-                                    if(!result3.err){
-                                        /** Emit check in */
-                                        var data = {
-                                            status : 1,
-                                            user_data : user_data,
-                                            log_data : result3.data,
-                                            tujuan : result3.data.tujuan != null ? result3.data.tujuan : '-',
-                                            message: 'Successfuly Checkin user'
-                                        }
-                                        io.emit('check', data)
-                                        res.status(200).json({err: false, message: 'Successfuly Checkin user', data: data})
-                                    }else{
-                                        res.status(500).json({err: true, message: result3.data})
-                                    }
-                                });
+                                res.status(500).json({err: true, message: result2.data})
                             }
-                        }else{
-                            res.status(500).json({err: true, message: result2.data})
-                        }
-                    });
+                        });   
+                    })
                 }else{
                     var data = {
                         status : 3,
@@ -100,7 +127,7 @@ class LogController{
 
     tapRFIDDetail(req, res){
         var rfid = req.body.rfid
-        user.getActiveUserByRFID(rfid, function(result){
+        user_model.getActiveUserByRFID(rfid, function(result){
             if(!result.err){
                 /** if exist return user data */
                 if(result.data != null){
@@ -116,8 +143,8 @@ class LogController{
                         message: 'Successfuly get card user'
                     }
                     /** Emit create user */
-                    router.io.emit('check', data)
-                    res.status(200).json({err: false, message: 'Successfuly get card user', data: result.data})
+                    io.emit('check', data)
+                    res.status(200).json({err: false, message: 'Successfuly get card user', data: data})
                 }else{
                     var data = {
                         status : 3,
@@ -127,7 +154,7 @@ class LogController{
                         message: 'Card is not registered'
                     }
                     /** Emit create user */
-                    router.io.emit('check', data)
+                    io.emit('check', data)
                     res.status(200).json({err: false, message: 'Card is not registered', data: {}})
                 }
             }else{

@@ -8,6 +8,7 @@
       type: 'json',
     }).done(function(res){
       $('#loading-admin').addClass('hidden')
+      $('#admin-not-found').addClass('hidden')
       if(!res.err){
         admin = res.data
         if(admin.length > 0){

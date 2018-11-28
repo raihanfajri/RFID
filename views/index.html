@@ -186,7 +186,7 @@
       </div>
       <div class="row">
         <!-- Left col -->
-        <div class="col-md-6">
+        <div class="col-md-8">
           <!-- TABLE: Pengguna -->
           <div class="box box-info">
             <div class="box-header with-border">
@@ -210,6 +210,7 @@
                     <th>Nama</th>
                     <th>Kriteria</th>
                     <th>Status</th>
+                    <th>Posisi</th>
                     <th>Tanggal Daftar</th>
                     <th>Aksi</th>
                   </tr>
@@ -224,7 +225,28 @@
             <!-- /.box-body -->
             <span id="pengguna-not-found" class="hidden" style="margin-left:32%">Pengguna masih kosong</span>
             <div class="box-footer clearfix">
-              <div class="col-md-4 col-xs-6 pull-right">
+              <div class="col-md-2 col-xs-6">
+                  <input id="nama-pengguna-filter" class="form-control" placeholder="Cari Nama">
+              </div>
+              <div class="col-md-3 col-xs-6">
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fa fa-users"></i></span>
+                  <select id="kriteria-pengguna-filter" class="form-control" >
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3 col-xs-6">
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fa fa-map-pin"></i></span>
+                  <select id="posisi-pengguna" class="form-control" >
+                    <option value="-1">Semua</option>
+                    <option value="1">Masuk</option>
+                    <option value="0">Keluar</option>
+                  </select>
+                </div>
+              </div>
+              <a id="filter-pengguna" onClick="filterPengguna()" class="btn btn-sm btn-primary">Filter</a>
+              <div class="col-md-3 col-xs-6 pull-right">
                 <div class="input-group">
                   <span class="input-group-addon">Page</span>
                   <select id="page-pengguna" class="form-control" >
@@ -236,7 +258,7 @@
           </div>
           <!-- /.box -->
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
           <!-- TABLE: Kriteria -->
           <div class="box box-info">
             <div class="box-header with-border">
@@ -259,7 +281,7 @@
                   <tr>
                     <th>Nama Kriteria</th>
                     <th>Status</th>
-                    <th>Jumlah Pengguna</th>
+                    <th>Jumlah <br>Pengguna</th>
                     <th>Aksi</th>
                   </tr>
                   </thead>
@@ -288,6 +310,63 @@
         <!-- /.col -->
       </div>
       <!-- /.row -->
+      <div class="row"> 
+        <div class="col-md-12">
+          <!-- TABLE: LOGS -->
+          <div class="box box-info">
+            <div class="box-header with-border">
+              <h3 class="box-title">Daftar Kebijakan Pengguna</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+              </div>
+            </div>
+            <div class="overlay" id="loading-kebijakan">
+                <i class="fa fa-refresh fa-spin"></i>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+              <div class="table-responsive">
+                <table class="table no-margin">
+                  <thead>
+                  <tr>
+                    <th>Kriteria</th>
+                    <th>Senin</th>
+                    <th>Selasa</th>
+                    <th>Rabu</th>
+                    <th>Kamis</th>
+                    <th>Jumat</th>
+                    <th>Sabtu</th>
+                    <th>Minggu</th>
+                    <th>Aksi</th>
+                  </tr>
+                  </thead>
+                  <tbody id="tabel-kebijakan">
+                  
+                  </tbody>
+                </table>
+              </div>
+              <!-- /.table-responsive -->
+            </div>
+            <!-- /.box-body -->
+            <span id="kebijakan-not-found" class="hidden" style="margin-left:32%">Kebijakan kosong</span>
+            <div class="box-footer clearfix">
+              <a id="tambah-kebijakan" onClick="tambahKebijakan()" class="btn btn-sm btn-primary pull-left">Tambah Kebijakan</a>
+              <div class="col-md-2 col-xs-6 pull-right">
+                <div class="input-group">
+                  <span class="input-group-addon">Page</span>
+                  <select id="page-kebijakan" class="form-control" >
+                  </select>
+                </div>
+              </div>
+            </div>
+            <!-- /.box-footer -->
+          </div>
+          <!-- /.box -->
+        </div>
+      </div>
       <div class="row"> 
         <div class="col-md-6 hidden" id="daftar-admin">
           <!-- TABLE: LOGS -->
@@ -396,6 +475,11 @@
           loadPengguna()
         })
       }
+      else if(msg.status == 5 || msg.status == 6){
+        failedCheck(msg)
+      }else if(msg.status == 4){
+        detailPengguna(msg)
+      }
   })
 </script>
 <script src="/script/role.js"></script>
@@ -403,5 +487,6 @@
 <script src="/script/admin.js"></script>
 <script src="/script/log.js"></script>
 <script src="/script/login.js"></script>
+<script src="/script/policy.js"></script> 
 </body>
 </html>

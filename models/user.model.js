@@ -1,9 +1,12 @@
 'use strict';
 var sequelize = require('../connection'),
     user = sequelize.import('../repository/user.table'),
-    role = sequelize.import('../repository/role.table')
+    role = sequelize.import('../repository/role.table'),
+    log = sequelize.import('../repository/log.table')
 
 user.belongsTo(role, { foreignKey: 'role_id' })
+user.hasMany(log, {foreignKey: 'user_id'})
+const Op = sequelize.Op;
 
 class UserModel{
   constructor(){
@@ -66,6 +69,12 @@ class UserModel{
       user.findAll({
           include: [{
             model: role
+          },{
+            model: log,
+            require: false,
+            required: false,
+            order: [['id','DESC']],
+            limit: 1
           }],
           order: [['created_date','DESC']]
       }).then(result => {
@@ -73,6 +82,30 @@ class UserModel{
       }).catch( err => {
           callback({err: true, data: err})
       })
+    }
+
+    getFilteredUsers(data, callback){
+        user.findAll({
+            include: [{
+            model: role
+          },{
+            model: log,
+            require: false,
+            required: false,
+            order: [['id','DESC']],
+            limit: 1
+          }],
+          order: [['created_date','DESC']],
+          where: {
+              name : {
+                  [Op.like] : '%' + data.name + '%'
+              }
+          }
+        }).then(result => {
+            callback({err: false, data: result})
+        }).catch( err => {
+            callback({err: true, data: err})
+        })
     }
 
     createUser(data, callback){

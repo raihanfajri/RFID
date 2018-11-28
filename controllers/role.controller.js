@@ -46,7 +46,7 @@ class RoleController{
             }
             else{
                 let message = "Data role baru gagal ditambahkan!"
-                res.status(500).json({err: true, message: message, data: error});    
+                res.status(500).json({err: true, message: message, data: result.data});    
             }
         })
     }
@@ -60,7 +60,7 @@ class RoleController{
             }
             else{
                 let message = "Data role gagal diganti!"
-                res.status(500).json({err: true, message: message, data: error});    
+                res.status(500).json({err: true, message: message, data: result.data});    
             }
         })
     }
@@ -74,7 +74,7 @@ class RoleController{
             }
             else{
                 let message = "Data role gagal dihapus!"
-                res.status(500).json({err: true, message: message, data: error});    
+                res.status(500).json({err: true, message: message, data: result.data});    
             }
         })
     }

@@ -63,6 +63,10 @@ class UserController{
                     var dataPromise = new Promise(function(resolve, reject){
                         var dataResult = [];
                         for(var i in result.data){
+                            var posisi = 0
+                            if(typeof result.data[i].logs[0] != 'undefined'){
+                                posisi = result.data[i].logs[0].checkout_time == null ? 1 : 0
+                            }
                             var date = new Date(result.data[i].created_date)
                             var utc = date.getTime() + (0 * 60000)
                             var gmt7 = new Date(utc + (3600000*7))
@@ -73,7 +77,8 @@ class UserController{
                                 name: result.data[i].name,
                                 status: result.data[i].status,
                                 date: gmt7,
-                                role: result.data[i].role
+                                role: result.data[i].role,
+                                posisi: posisi
                             })
                         }
                         resolve(dataResult)
@@ -94,31 +99,59 @@ class UserController{
         });
     }
 
-    /* Show detail of a record depends on tanggal */
-    showDetail(req, res){
-        let tanggal = new Date(req.params.tanggal)
-        if(tanggal == null){
-            let message = "Invalid input!";
-            res.status(400).json({status: false, message: message, data: null})
+    filteredList(req, res){
+        var data = {
+            name : req.query.nama,
+            role : {
+                id : parseInt(req.query.kriteria)
+            },
+            posisi : parseInt(req.query.posisi)
         }
-        berat.findOne({
-            where: {
-                tanggal : tanggal
+        user_model.getFilteredUsers(data, function(result){
+            var message = 'Successfuly get all users'
+            if(result.data.length != 0){
+                var dataPromise = new Promise(function(resolve, reject){
+                    var dataResult = [];
+                    for(var i in result.data){
+                        var posisi = 0
+                        if(typeof result.data[i].logs[0] != 'undefined'){
+                            posisi = result.data[i].logs[0].checkout_time == null ? 1 : 0
+                        }
+                        if(data.posisi != -1){
+                            if(posisi != data.posisi){
+                                continue;
+                            }
+                        }
+                        if(data.role.id != -1){
+                            if(result.data[i].role.id != data.role.id){
+                                continue;
+                            }
+                        }
+                        var date = new Date(result.data[i].created_date)
+                        var utc = date.getTime() + (0 * 60000)
+                        var gmt7 = new Date(utc + (3600000*7))
+                        gmt7 = gmt7.getDate() + '-' + (gmt7.getMonth()+1) + '-' + gmt7.getFullYear() + ' ' + 
+                                gmt7.getHours() + ':' + gmt7.getMinutes()
+                        dataResult.push({
+                            id: result.data[i].id,
+                            name: result.data[i].name,
+                            status: result.data[i].status,
+                            date: gmt7,
+                            role: result.data[i].role,
+                            posisi: posisi
+                        })
+                    }
+                    resolve(dataResult)
+                })
+                dataPromise.then(function(dataResult){
+                    res.status(200).json({status: true, message: message, data: dataResult});
+                })
             }
-        }).then(result => {
-            let message = "";
-            if(result == null){
-                message = "Tidak ada data dalam database!";
-                console.log(message)
-                res.json({status: true, message: message, data: result});
-            }else{
-                message = "Data ditemukan!";
-                res.status(200).json({status: true, message: message, data: result});
+            else{
+                message = 'Users not found';
+                res.status(200).json({status: true, message: message, data: []});
             }
-        }).catch(error => {
-            let message = "Gagal mengambil data!"
-            res.status(500).json({status: false, message: message, data: error});
-        });
+        })
     }
 }
 module.exports = UserController;

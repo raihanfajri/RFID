@@ -5,11 +5,13 @@ var user = require('../controllers/user.controller');
 var admin = require('../controllers/admin.controller');
 var role = require('../controllers/role.controller');
 var log = require('../controllers/log.controller');
+var policy = require('../controllers/policy.controller');
 
 const User = new user;
 const Admin = new admin;
 const Role = new role;
 const Log = new log;
+const Policy = new policy;
 
 /* API for register new admin */
 router.post('/admin/register', function(req, res, next) {
@@ -71,6 +73,10 @@ router.post('/tap/check', function(req, res, next) {
   Log.tapRFID(req,res);
 });
 
+router.post('/tap/detail', function(req, res, next) {
+  Log.tapRFIDDetail(req,res);
+});
+
 /* API for create new user record */
 router.post('/user/create', function(req, res, next) {
   User.create(req,res);
@@ -93,9 +99,30 @@ router.post('/logs/update', function(req, res, next){
   Log.updateLog(req, res);
 })
 
+router.post('/policy/create', function(req, res, next){
+  Policy.createPolicy(req, res);
+})
+
+router.post('/policy/update', function(req, res, next){
+  Policy.updatePolicies(req, res);
+})
+
+router.post('/policy/delete', function(req, res, next){
+  Policy.deletePolicies(req, res);
+})
+
+router.get('/policy/all', function(req, res, next){
+  Policy.getAllPolicies(res);
+})
+
 /* API for get all user records */
 router.get('/user/all', function(req, res, next) {
   User.showAll(res);
+});
+
+/* API for get all user records */
+router.get('/user/filter', function(req, res, next) {
+  User.filteredList(req,res);
 });
 
 /* API for get detail of a record depends on tanggal */
