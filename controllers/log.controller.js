@@ -11,6 +11,7 @@ var express = require('express'),
 var user_model = new user;
 var log_model = new log;
 var policy_model = new policy;
+const excel = require('node-excel-export')
 
 
 class LogController{
@@ -214,31 +215,116 @@ class LogController{
         });
     }
 
-    /* Show detail of a record depends on tanggal */
-    showDetail(req, res){
-        let tanggal = new Date(req.params.tanggal)
-        if(tanggal == null){
-            let message = "Invalid input!";
-            res.status(400).json({status: false, message: message, data: null})
+    generateExcel(req, res){
+        const styles = {
+            headerDark: {
+                font: {
+                    color: {
+                        rgb: 'FF000000'
+                    },
+                    sz: 14,
+                    bold: true,
+                    underline: true,
+                },
+                alignment: {
+                    horizontal : 'center',
+                    vertical : 'center'
+                }
+            }
         }
-        berat.findOne({
-            where: {
-                tanggal : tanggal
+        const heading = [
+            ['Nama', 'Kriteria', 'Tujuan', 'Status', 'Waktu Masuk', 'Waktu Keluar'] 
+        ];
+        const specification = {
+            name: {
+                displayName: 'Nama', 
+                headerStyle: styles.headerDark,
+                width: 120 // <- width in pixels
+            },
+            role: {
+                displayName: 'Kriteria',
+                headerStyle: styles.headerDark,
+                width: 120 
+            },
+            tujuan: {
+                displayName: 'Tujuan',
+                headerStyle: styles.headerDark,
+                width: 120
+            },
+            status: {
+                displayName: 'Status',
+                headerStyle: styles.headerDark,
+                width: 120
+            },
+            checkin_time: {
+                displayName: 'Waktu Masuk',
+                headerStyle: styles.headerDark,
+                width: 120
+            },
+            checkout_time: {
+                displayName: 'Waktu Keluar',
+                headerStyle: styles.headerDark,
+                width: 120
             }
-        }).then(result => {
-            let message = "";
-            if(result == null){
-                message = "Tidak ada data dalam database!";
-                console.log(message)
-                res.json({status: true, message: message, data: result});
+        }
+        this.filteredLog(req, function(logData){
+            const dataset = logData.data
+            const report = excel.buildExport(
+            [
+                {
+                    name: 'Report', // <- Specify sheet name (optional)
+                    specification: specification, // <- Report specification
+                    data: dataset // <-- Report data
+                }
+            ]);
+            res.attachment('report.xlsx')
+            res.send(report)
+        })
+    }
+
+    filteredLog(req, callback){
+        var year = req.query.year
+        var top_month = req.query.month == -1 ? 0 : (req.query.month-1)
+        var bot_month = req.query.month == -1 ? 12 : (req.query.month)
+        var top_date = new Date((new Date(year, top_month, 1)).getTime() +  (7*3600000))
+        var bot_date = new Date((new Date(year, bot_month, 0)).getTime() +  (7*3600000))
+        log_model.getAllActiveLogs(function(result){
+            if(result.data.length != 0){
+                var dataPromise = new Promise(function(resolve, reject){
+                    var data = []
+                    for(var i in result.data){
+                        var checkin_date = new Date((new Date(result.data[i].checkin_time)).getTime() +  (7*3600000))
+                        if(checkin_date < top_date || checkin_date > bot_date){
+                            if(result.data[i].checkin_time != null){
+                                var checkout_date = new Date((new Date(result.data[i].checkout_time)).getTime() +  (7*3600000))
+                                if(checkout_date < top_date || checkout_date > bot_date){
+                                    continue
+                                }
+                            }else{
+                                continue
+                            }
+                        }
+                        var checkout_date = new Date((new Date(result.data[i].checkout_time)).getTime() +  (7*3600000))
+                        var check_in = constant.convertToGMT7(result.data[i].checkin_time, 0)
+                        var check_out = result.data[i].checkout_time != null ? constant.convertToGMT7(result.data[i].checkout_time, 0) : '-'
+                        data.push({
+                            tujuan : result.data[i].tujuan != null ? result.data[i].tujuan : '-',
+                            status : result.data[i].checkout_time == null ? 'Masuk' : 'Keluar',
+                            checkin_time : check_in,
+                            checkout_time : check_out,
+                            name : result.data[i].user.name,
+                            role : result.data[i].user.role.name
+                        })
+                    }
+                    resolve(data)
+                })
+                dataPromise.then(function(dataResult){
+                    callback({data : dataResult})
+                })
             }else{
-                message = "Data ditemukan!";
-                res.status(200).json({status: true, message: message, data: result});
+                callback({data: []})
             }
-        }).catch(error => {
-            let message = "Gagal mengambil data!"
-            res.status(500).json({status: false, message: message, data: error});
-        });
+        })
     }
 }
 module.exports = LogController;

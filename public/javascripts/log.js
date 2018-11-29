@@ -1,5 +1,7 @@
   var limit = 5
   var log = {}
+  var bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli'
+              , 'Agustus', 'September', 'Oktober', 'November', 'Desember']
   loadLog()
   function loadLog(){
     $.ajax({
@@ -35,6 +37,12 @@
         }
       }
     })
+    $('#bulan-log').html('<option value="-1">Semua Bulan</option>')
+    for(var i = 0; i < bulan.length; i++){
+      $('#bulan-log').append(
+        '<option value="'+ (i+1) +'">'+ bulan[i] +'</option>'
+      )
+    }
   }
   $('#page-log').change(function(){
     var page = $('#page-log').val()
@@ -132,4 +140,8 @@
     $('#modal-footer').html(
       '<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>'
     );
+  }
+
+  function downloadLog(){
+    window.location.href = '/api/logs/excel?month='+$('#bulan-log').val() + '&year=' + $('#tahun-log').val()
   }

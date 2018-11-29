@@ -171,6 +171,15 @@
             <!-- /.box-body -->
             <span id="log-not-found" class="hidden" style="margin-left:32%">Log pengguna masih kosong</span>
             <div class="box-footer clearfix">
+              <div class="col-md-3 col-xs-6">
+                  <select id="bulan-log" class="form-control" >
+                    
+                  </select>
+              </div>
+              <div class="col-md-2 col-xs-6">
+                  <input id="tahun-log" type="number" class="form-control" placeholder="Isikan Tahun">
+              </div>
+              <a id="download-log" onClick="downloadLog()" class="btn btn-sm btn-primary">Download</a>
               <div class="col-md-2 col-xs-6 pull-right">
                 <div class="input-group">
                   <span class="input-group-addon">Page</span>

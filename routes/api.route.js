@@ -95,6 +95,10 @@ router.get('/logs/all', function(req, res, next){
   Log.showAll(res);
 })
 
+router.get('/logs/excel', function(req, res, next){
+  Log.generateExcel(req,res);
+})
+
 router.post('/logs/update', function(req, res, next){
   Log.updateLog(req, res);
 })
