@@ -156,7 +156,7 @@ class LogController{
                     }
                     /** Emit create user */
                     io.emit('check', data)
-                    res.status(200).json({err: false, message: 'Card is not registered', data: {}})
+                    res.status(200).json({err: false, message: 'Card is not registered', data: data})
                 }
             }else{
                 res.status(500).json({err: true, message: result.data})
